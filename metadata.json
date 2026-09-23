@@ -1,0 +1,6 @@
+{
+  "name": "Karunya SmartBus",
+  "description": "Smart campus transit tracking, attendance, and fleet management for Karunya Institute of Technology and Sciences",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
