@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Karunya KitsSmarbus - Live Bus Tracking & Attendance</title>
+  
+  <!-- PWA & Mobile Meta Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="KitsSmarbus">
+  <meta name="theme-color" content="#091026">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="https://img.icons8.com/color/192/000000/bus.png">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Google Maps JavaScript API -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBXO_Aa4k5lBUamGR7RVyBed2VZDN0pAso&libraries=places,geometry" async defer></script>
+  
+  <!-- QRCode library CDN for attendance pass generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    <!-- Top Header Navigation -->
+    <header class="top-header">
+      <div class="brand-title">
+        <div class="brand-icon">🚌</div>
+        <div>
+          <div class="brand-name">KitsSmarbus</div>
+          <div class="brand-subtitle">Karunya Smart Transport</div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Role Switcher Pill -->
+        <div class="role-badge">
+          <span>👤 Role:</span>
+          <select id="role-select" onchange="switchRole(this.value)">
+            <option value="STUDENT" selected>Student</option>
+            <option value="PARENT">Parent</option>
+            <option value="DRIVER">Driver</option>
+            <option value="COORDINATOR">Coordinator</option>
+            <option value="ADMIN">Transport Admin</option>
+          </select>
+        </div>
+
+        <button class="btn-icon" onclick="toggleNotificationDrawer()" title="Notifications">
+          🔔
+          <span class="notif-dot" id="notif-badge"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Layout -->
+    <div class="main-content">
+      <!-- Google Map View Area -->
+      <main class="map-section">
+        <div id="map"></div>
+
+        <!-- HUD Live Tracker Banner -->
+        <div class="map-hud">
+          <div class="hud-pill">
+            <div class="pulse-indicator" id="sim-status-dot"></div>
+            <div>
+              <div class="hud-text" id="sim-status-text">GPS Live Tracking Active</div>
+              <div style="font-size: 11px; color: var(--text-muted);" id="sim-speed-text">1.0x Speed • 5 Active Buses</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Map Quick Controls (Satellite, Traffic, Recenter, Speed) -->
+        <div class="map-tools">
+          <button class="tool-btn" id="btn-map-type" onclick="toggleMapType()">🛰️ Satellite</button>
+          <button class="tool-btn" id="btn-traffic" onclick="toggleTraffic()">🚦 Traffic</button>
+          <button class="tool-btn" onclick="toggleSimSpeed()">⚡ <span id="speed-btn-label">2x Speed</span></button>
+          <button class="tool-btn" onclick="recenterMap()">🎯 Recenter</button>
+        </div>
+      </main>
+
+      <!-- Side Panel / Role Specific Dashboard -->
+      <aside class="side-panel" id="side-panel">
+        <div class="panel-header">
+          <div class="panel-title" id="panel-role-title">🎓 Student Portal</div>
+          <div class="badge badge-cyan" id="panel-active-bus-badge">Bus #01 • Route 01</div>
+        </div>
+
+        <div class="panel-body" id="panel-content">
+          <!-- Dynamic Role Content Injected via JS -->
+        </div>
+      </aside>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container"></div>
+
+    <!-- QR Scanner / Attendance Modal -->
+    <div class="modal-overlay" id="qr-modal">
+      <div class="modal-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <h3 style="font-family: var(--font-heading); font-size: 18px;">📷 QR Attendance Scanner</h3>
+          <button class="btn-icon" onclick="closeQrModal()">✕</button>
+        </div>
+        <div style="text-align: center; padding: 20px 0;">
+          <div style="width: 220px; height: 220px; border: 2px dashed var(--primary-cyan); border-radius: 16px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(56,189,248,0.05);">
+            <div style="font-size: 48px; margin-bottom: 10px;">📷</div>
+            <div style="font-size: 13px; color: var(--text-muted);">Align QR Code within camera box</div>
+          </div>
+          <div style="margin-top: 20px;">
+            <button class="btn-primary" onclick="simulateQrScanSuccess()">Simulate Scan Success</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Application Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
