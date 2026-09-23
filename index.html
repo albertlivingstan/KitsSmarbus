@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Karunya KitsSmarbus - Live Bus Tracking & Attendance</title>
+  <title>Karunya KitsSmarbus - Bus No. 14 Live Tracking & Attendance</title>
   
   <!-- PWA & Mobile Meta Tags -->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -19,104 +19,131 @@
   <!-- Google Maps JavaScript API -->
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBXO_Aa4k5lBUamGR7RVyBed2VZDN0pAso&libraries=places,geometry" async defer></script>
   
-  <!-- QRCode library CDN for attendance pass generation -->
+  <!-- QRCode library CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
   <div id="app">
     <!-- Top Header Navigation -->
     <header class="top-header">
-      <div class="brand-title">
+      <div class="brand-title" onclick="switchTab('TRACKING')">
         <div class="brand-icon">🚌</div>
         <div>
           <div class="brand-name">KitsSmarbus</div>
-          <div class="brand-subtitle">Karunya Smart Transport</div>
+          <div class="brand-subtitle">Karunya Deemed University</div>
         </div>
       </div>
 
-      <div class="header-actions">
-        <!-- Role Switcher Pill -->
-        <div class="role-badge">
-          <span>👤 Role:</span>
-          <select id="role-select" onchange="switchRole(this.value)">
-            <option value="STUDENT" selected>Student</option>
-            <option value="PARENT">Parent</option>
-            <option value="DRIVER">Driver</option>
-            <option value="COORDINATOR">Coordinator</option>
-            <option value="ADMIN">Transport Admin</option>
-          </select>
-        </div>
+      <!-- Top Navigation Tabs (Desktop/Tablet) -->
+      <nav class="top-nav-tabs">
+        <button class="nav-tab-btn active" id="tab-btn-TRACKING" onclick="switchTab('TRACKING')">🗺️ Live Map</button>
+        <button class="nav-tab-btn" id="tab-btn-TIMETABLE" onclick="switchTab('TIMETABLE')">📋 Bus 14 Schedule</button>
+        <button class="nav-tab-btn" id="tab-btn-BUSPASS" onclick="switchTab('BUSPASS')">🎫 Student Pass</button>
+        <button class="nav-tab-btn" id="tab-btn-CONSOLE" onclick="switchTab('CONSOLE')">⚙️ Control Console</button>
+      </nav>
 
-        <button class="btn-icon" onclick="toggleNotificationDrawer()" title="Notifications">
-          🔔
-          <span class="notif-dot" id="notif-badge"></span>
-        </button>
+      <!-- User Session & Sign Out -->
+      <div class="user-profile-pill" id="user-profile-pill">
+        <div>
+          <div class="user-email-text" id="user-email-display">student@karunya.edu.in</div>
+          <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;" id="user-role-display">Student</div>
+        </div>
+        <button class="btn-signout" onclick="signOut()">Sign Out</button>
       </div>
     </header>
 
-    <!-- Main Content Layout -->
+    <!-- Main Content Single-Page Area -->
     <div class="main-content">
-      <!-- Google Map View Area -->
+      <!-- Full Page Google Map -->
       <main class="map-section">
         <div id="map"></div>
 
-        <!-- HUD Live Tracker Banner -->
+        <!-- Live Tracker HUD Banner -->
         <div class="map-hud">
           <div class="hud-pill">
             <div class="pulse-indicator" id="sim-status-dot"></div>
             <div>
-              <div class="hud-text" id="sim-status-text">GPS Live Tracking Active</div>
-              <div style="font-size: 11px; color: var(--text-muted);" id="sim-speed-text">1.0x Speed • 5 Active Buses</div>
+              <div class="hud-text" id="hud-bus-title">BUS NO. 14 • ACC Pirivu ➔ Karunya Campus</div>
+              <div style="font-size: 11px; color: var(--text-muted);" id="hud-sub-text">Next: ACC Quarry • Speed: 42 km/h</div>
             </div>
           </div>
         </div>
 
-        <!-- Map Quick Controls (Satellite, Traffic, Recenter, Speed) -->
+        <!-- Map Tools (Satellite, Traffic, Driver GPS, Recenter) -->
         <div class="map-tools">
           <button class="tool-btn" id="btn-map-type" onclick="toggleMapType()">🛰️ Satellite</button>
           <button class="tool-btn" id="btn-traffic" onclick="toggleTraffic()">🚦 Traffic</button>
-          <button class="tool-btn" onclick="toggleSimSpeed()">⚡ <span id="speed-btn-label">2x Speed</span></button>
-          <button class="tool-btn" onclick="recenterMap()">🎯 Recenter</button>
+          <button class="tool-btn" id="btn-driver-gps" onclick="toggleDriverDeviceGps()">📡 Driver Device GPS</button>
+          <button class="tool-btn" onclick="recenterOnBus14()">🎯 Recenter Bus 14</button>
         </div>
       </main>
 
-      <!-- Side Panel / Role Specific Dashboard -->
+      <!-- Interactive Side Panel / Tab Drawer -->
       <aside class="side-panel" id="side-panel">
         <div class="panel-header">
-          <div class="panel-title" id="panel-role-title">🎓 Student Portal</div>
-          <div class="badge badge-cyan" id="panel-active-bus-badge">Bus #01 • Route 01</div>
+          <div class="panel-title" id="panel-title-text">🗺️ Live Bus Tracking</div>
+          <div class="badge badge-green" id="panel-badge-status">BUS NO. 14 ON TIME</div>
         </div>
 
-        <div class="panel-body" id="panel-content">
-          <!-- Dynamic Role Content Injected via JS -->
+        <div class="panel-body" id="panel-content-body">
+          <!-- Dynamic Content Injected via app.js -->
         </div>
       </aside>
     </div>
 
+    <!-- Bottom Navigation Bar for Mobile -->
+    <nav class="bottom-nav">
+      <div class="nav-item active" id="mobile-nav-TRACKING" onclick="switchTab('TRACKING')">
+        <span>🗺️ Map</span>
+      </div>
+      <div class="nav-item" id="mobile-nav-TIMETABLE" onclick="switchTab('TIMETABLE')">
+        <span>📋 Schedule</span>
+      </div>
+      <div class="nav-item" id="mobile-nav-BUSPASS" onclick="switchTab('BUSPASS')">
+        <span>🎫 Bus Pass</span>
+      </div>
+      <div class="nav-item" id="mobile-nav-CONSOLE" onclick="switchTab('CONSOLE')">
+        <span>⚙️ Console</span>
+      </div>
+    </nav>
+
     <!-- Toast Notifications Container -->
     <div id="toast-container"></div>
 
-    <!-- QR Scanner / Attendance Modal -->
-    <div class="modal-overlay" id="qr-modal">
-      <div class="modal-content">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-          <h3 style="font-family: var(--font-heading); font-size: 18px;">📷 QR Attendance Scanner</h3>
-          <button class="btn-icon" onclick="closeQrModal()">✕</button>
-        </div>
-        <div style="text-align: center; padding: 20px 0;">
-          <div style="width: 220px; height: 220px; border: 2px dashed var(--primary-cyan); border-radius: 16px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(56,189,248,0.05);">
-            <div style="font-size: 48px; margin-bottom: 10px;">📷</div>
-            <div style="font-size: 13px; color: var(--text-muted);">Align QR Code within camera box</div>
+    <!-- Authentication Screen Modal -->
+    <div class="auth-modal-overlay" id="auth-modal">
+      <div class="auth-card">
+        <div class="auth-title">🚌 KitsSmarbus Portal</div>
+        <div class="auth-subtitle">Karunya Deemed University Transport Service</div>
+
+        <form id="auth-form" onsubmit="handleLoginSubmit(event)">
+          <div class="form-group">
+            <label class="form-label">Email or Username</label>
+            <input type="text" id="auth-username" class="form-input" placeholder="e.g. student@karunya.edu.in or admin" required>
           </div>
-          <div style="margin-top: 20px;">
-            <button class="btn-primary" onclick="simulateQrScanSuccess()">Simulate Scan Success</button>
+
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" id="auth-password" class="form-input" placeholder="Enter password (12345 for Admin)" required>
+          </div>
+
+          <button type="submit" class="btn-primary" style="margin-top: 10px;">🔐 Sign In to App</button>
+        </form>
+
+        <div class="quick-demo-box">
+          <div class="quick-demo-title">Quick Demo Logins</div>
+          <div class="quick-demo-grid">
+            <button class="btn-demo-role" onclick="quickFillLogin('student@karunya.edu.in', 'pass123')">🎓 Student</button>
+            <button class="btn-demo-role" onclick="quickFillLogin('coord@karunya.edu', 'pass123')">📋 Coordinator</button>
+            <button class="btn-demo-role" onclick="quickFillLogin('driver14@karunya.edu', 'pass123')">🚍 Driver No. 14</button>
+            <button class="btn-demo-role" onclick="quickFillLogin('admin', '12345')">⚙️ Transport Admin</button>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Main Application Logic -->
+  <!-- Main Application JavaScript -->
   <script src="app.js"></script>
 </body>
 </html>
